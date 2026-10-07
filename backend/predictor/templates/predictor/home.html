@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Medical Appointment Prediction</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f7f9;
+            color: #263238;
+        }
+
+        .navbar {
+            width: 90%;
+            max-width: 1100px;
+            margin: 20px auto 0;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            padding: 15px 20px;
+
+            background: white;
+            border-radius: 10px;
+
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .nav-brand {
+            font-size: 16px;
+            font-weight: 600;
+            color: #263238;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .welcome {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .nav-links a {
+            color: #263238;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 850px;
+            margin: 50px auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            margin: 0 0 10px;
+            font-size: 32px;
+            color: #1f2933;
+        }
+
+        .header p {
+            margin: 0;
+            color: #6b7280;
+            font-size: 15px;
+        }
+
+        .form-card {
+            background: white;
+            padding: 35px;
+            border-radius: 16px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.07);
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+        }
+
+        .form-section h2 {
+            font-size: 19px;
+            margin: 0 0 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e5e7eb;
+            color: #263238;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            margin-bottom: 7px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 11px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            background: white;
+            color: #374151;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: #64748b;
+            box-shadow: 0 0 0 3px rgba(100, 116, 139, 0.12);
+        }
+
+        .predict-button {
+            width: 100%;
+            padding: 13px;
+            margin-top: 5px;
+            border: none;
+            border-radius: 8px;
+            background: #263238;
+            color: white;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .predict-button:hover {
+            background: #37474f;
+        }
+
+        @media (max-width: 650px) {
+            .container {
+                width: 94%;
+                margin: 30px auto;
+            }
+
+            .form-card {
+                padding: 25px 20px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 27px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar">
+
+        <div class="nav-brand">
+            Appointment Predictor
+        </div>
+    
+        <div class="nav-links">
+    
+            <span class="welcome">
+                Hello, {{ user.username }}
+            </span>
+    
+            <a href="{% url 'dashboard' %}">
+                Dashboard
+            </a>
+    
+            <a href="{% url 'logout' %}">
+                Logout
+            </a>
+    
+        </div>
+    
+    </nav>
+
+<div class="container">
+
+    <div class="header">
+        <h1>Medical Appointment No-Show Prediction</h1>
+
+        <p>
+            Enter the appointment details below to estimate the likelihood
+            of the patient missing their appointment.
+        </p>
+    </div>
+
+
+    <div class="form-card">
+
+        <form method="POST">
+            {% csrf_token %}
+
+
+            <!-- Patient Information -->
+
+            <div class="form-section">
+
+                <h2>Patient Information</h2>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="name">Patient Name</label>
+                    
+                        <input
+                            type="text"
+                            name="name"
+                            id="name"
+                            placeholder="Enter patient name"
+                            required
+                        >
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="contact">Contact Number</label>
+                    
+                        <input
+                            type="text"
+                            name="contact"
+                            id="contact"
+                            placeholder="Enter contact number"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="gender">Gender</label>
+
+                        <select name="gender" id="gender" required>
+                            <option value="">Select gender</option>
+                            <option value="F">Female</option>
+                            <option value="M">Male</option>
+                        </select>
+                    </div>
+
+
+                    <div class="form-group">
+                        <label for="age">Age</label>
+
+                        <input
+                            type="number"
+                            name="age"
+                            id="age"
+                            min="0"
+                            placeholder="Enter age"
+                            required
+                        >
+                    </div>
+
+
+                    <div class="form-group">
+                        <label for="neighbourhood">Neighbourhood</label>
+                        <select name="neighbourhood" id="neighbourhood" required>
+                            <option value="">Select neighbourhood</option>
+                            <option value="AEROPORTO">AEROPORTO</option>
+                            <option value="ANDORINHAS">ANDORINHAS</option>
+                            <option value="ANTÔNIO HONÓRIO">ANTÔNIO HONÓRIO</option>
+                            <option value="ARIOVALDO FAVALESSA">ARIOVALDO FAVALESSA</option>
+                            <option value="BARRO VERMELHO">BARRO VERMELHO</option>
+                            <option value="BELA VISTA">BELA VISTA</option>
+                            <option value="BENTO FERREIRA">BENTO FERREIRA</option>
+                            <option value="BOA VISTA">BOA VISTA</option>
+                            <option value="BONFIM">BONFIM</option>
+                            <option value="CARATOÍRA">CARATOÍRA</option>
+                            <option value="CENTRO">CENTRO</option>
+                            <option value="COMDUSA">COMDUSA</option>
+                            <option value="CONQUISTA">CONQUISTA</option>
+                            <option value="CONSOLAÇÃO">CONSOLAÇÃO</option>
+                            <option value="CRUZAMENTO">CRUZAMENTO</option>
+                            <option value="DA PENHA">DA PENHA</option>
+                            <option value="DE LOURDES">DE LOURDES</option>
+                            <option value="DO CABRAL">DO CABRAL</option>
+                            <option value="DO MOSCOSO">DO MOSCOSO</option>
+                            <option value="DO QUADRO">DO QUADRO</option>
+                            <option value="ENSEADA DO SUÁ">ENSEADA DO SUÁ</option>
+                            <option value="ESTRELINHA">ESTRELINHA</option>
+                            <option value="FONTE GRANDE">FONTE GRANDE</option>
+                            <option value="FORTE SÃO JOÃO">FORTE SÃO JOÃO</option>
+                            <option value="FRADINHOS">FRADINHOS</option>
+                            <option value="GOIABEIRAS">GOIABEIRAS</option>
+                            <option value="GRANDE VITÓRIA">GRANDE VITÓRIA</option>
+                            <option value="GURIGICA">GURIGICA</option>
+                            <option value="HORTO">HORTO</option>
+                            <option value="ILHA DAS CAIEIRAS">ILHA DAS CAIEIRAS</option>
+                            <option value="ILHA DE SANTA MARIA">ILHA DE SANTA MARIA</option>
+                            <option value="ILHA DO BOI">ILHA DO BOI</option>
+                            <option value="ILHA DO FRADE">ILHA DO FRADE</option>
+                            <option value="ILHA DO PRÍNCIPE">ILHA DO PRÍNCIPE</option>
+                            <option value="ILHAS OCEÂNICAS DE TRINDADE">ILHAS OCEÂNICAS DE TRINDADE</option>
+                            <option value="INHANGUETÁ">INHANGUETÁ</option>
+                            <option value="ITARARÉ">ITARARÉ</option>
+                            <option value="JABOUR">JABOUR</option>
+                            <option value="JARDIM CAMBURI">JARDIM CAMBURI</option>
+                            <option value="JARDIM DA PENHA">JARDIM DA PENHA</option>
+                            <option value="JESUS DE NAZARETH">JESUS DE NAZARETH</option>
+                            <option value="JOANA D´ARC">JOANA D´ARC</option>
+                            <option value="JUCUTUQUARA">JUCUTUQUARA</option>
+                            <option value="MARIA ORTIZ">MARIA ORTIZ</option>
+                            <option value="MARUÍPE">MARUÍPE</option>
+                            <option value="MATA DA PRAIA">MATA DA PRAIA</option>
+                            <option value="MONTE BELO">MONTE BELO</option>
+                            <option value="MORADA DE CAMBURI">MORADA DE CAMBURI</option>
+                            <option value="MÁRIO CYPRESTE">MÁRIO CYPRESTE</option>
+                            <option value="NAZARETH">NAZARETH</option>
+                            <option value="NOVA PALESTINA">NOVA PALESTINA</option>
+                            <option value="PARQUE INDUSTRIAL">PARQUE INDUSTRIAL</option>
+                            <option value="PARQUE MOSCOSO">PARQUE MOSCOSO</option>
+                            <option value="PIEDADE">PIEDADE</option>
+                            <option value="PONTAL DE CAMBURI">PONTAL DE CAMBURI</option>
+                            <option value="PRAIA DO CANTO">PRAIA DO CANTO</option>
+                            <option value="PRAIA DO SUÁ">PRAIA DO SUÁ</option>
+                            <option value="REDENÇÃO">REDENÇÃO</option>
+                            <option value="REPÚBLICA">REPÚBLICA</option>
+                            <option value="RESISTÊNCIA">RESISTÊNCIA</option>
+                            <option value="ROMÃO">ROMÃO</option>
+                            <option value="SANTA CECÍLIA">SANTA CECÍLIA</option>
+                            <option value="SANTA CLARA">SANTA CLARA</option>
+                            <option value="SANTA HELENA">SANTA HELENA</option>
+                            <option value="SANTA LUÍZA">SANTA LUÍZA</option>
+                            <option value="SANTA LÚCIA">SANTA LÚCIA</option>
+                            <option value="SANTA MARTHA">SANTA MARTHA</option>
+                            <option value="SANTA TEREZA">SANTA TEREZA</option>
+                            <option value="SANTO ANDRÉ">SANTO ANDRÉ</option>
+                            <option value="SANTO ANTÔNIO">SANTO ANTÔNIO</option>
+                            <option value="SANTOS DUMONT">SANTOS DUMONT</option>
+                            <option value="SANTOS REIS">SANTOS REIS</option>
+                            <option value="SEGURANÇA DO LAR">SEGURANÇA DO LAR</option>
+                            <option value="SOLON BORGES">SOLON BORGES</option>
+                            <option value="SÃO BENEDITO">SÃO BENEDITO</option>
+                            <option value="SÃO CRISTÓVÃO">SÃO CRISTÓVÃO</option>
+                            <option value="SÃO JOSÉ">SÃO JOSÉ</option>
+                            <option value="SÃO PEDRO">SÃO PEDRO</option>
+                            <option value="TABUAZEIRO">TABUAZEIRO</option>
+                            <option value="UNIVERSITÁRIO">UNIVERSITÁRIO</option>
+                            <option value="VILA RUBIM">VILA RUBIM</option>
+                        </select>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Medical & Social Information -->
+
+            <div class="form-section">
+
+                <h2>Medical & Social Information</h2>
+
+                <div class="form-grid">
+
+                    <div class="form-group">
+                        <label for="scholarship">Scholarship</label>
+
+                        <select name="scholarship" id="scholarship" required>
+                            <option value="">Select</option>
+                            <option value="0">No</option>
+                            <option value="1">Yes</option>
+                        </select>
+                    </div>
+
+
+                    <div class="form-group">
+                        <label for="hypertension">Hypertension</label>
+
+                        <select name="hypertension" id="hypertension" required>
+                            <option value="">Select</option>
+                            <option value="0">No</option>
+                            <option value="1">Yes</option>
+                        </select>
+                    </div>
+
+
+                    <div class="form-group">
+                        <label for="diabetes">Diabetes</label>
+
+                        <select name="diabetes" id="diabetes" required>
+                            <option value="">Select</option>
+                            <option value="0">No</option>
+                            <option value="1">Yes</option>
+                        </select>
+                    </div>
+
+
+                    <div class="form-group">
+                        <label for="alcoholism">Alcoholism</label>
+
+                        <select name="alcoholism" id="alcoholism" required>
+                            <option value="">Select</option>
+                            <option value="0">No</option>
+                            <option value="1">Yes</option>
+                        </select>
+                    </div>
+
+
+                    <div class="form-group">
+                        <label for="handicap">Handicap</label>
+
+                        <select name="handicap" id="handicap" required>
+                            <option value="">Select</option>
+                            <option value="0">No</option>
+                            <option value="1">Yes</option>
+                        </select>
+                    </div>
+
+
+                    <div class="form-group">
+                        <label for="sms_received">SMS Received</label>
+
+                        <select name="sms_received" id="sms_received" required>
+                            <option value="">Select</option>
+                            <option value="0">No</option>
+                            <option value="1">Yes</option>
+                        </select>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Appointment Information -->
+
+            <div class="form-section">
+
+                <h2>Appointment Information</h2>
+
+                <div class="form-grid">
+
+                    <div class="form-group">
+                        <label for="scheduled_day">
+                            Scheduled Date & Time
+                        </label>
+
+                        <input
+                            type="datetime-local"
+                            name="scheduled_day"
+                            id="scheduled_day"
+                            required
+                        >
+                    </div>
+
+
+                    <div class="form-group">
+                        <label for="appointment_day">
+                            Appointment Date
+                        </label>
+
+                        <input
+                            type="date"
+                            name="appointment_day"
+                            id="appointment_day"
+                            required
+                        >
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Submit -->
+
+            <button type="submit" class="predict-button">
+                Predict No-Show Risk
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+</body>
+</html>
